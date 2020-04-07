@@ -30,7 +30,7 @@
 	</video>
 	<canvas hidden id="canvas" onclick= canvasOnclick()></canvas>
 </div>
-<h1 style = "color:white">YOU MESSED UP. </h1>
+<h1 style = "color:white">YOU MESSED UP. <span id = "seconds_left_in_delay">3</span> second delay</h1>
 <h1>CODE: 9ASNSA9</h1>
 
 <script>
@@ -113,12 +113,14 @@ function intervalTimer() {
 	  	window.last_image = data;
 	  } else {
 	  	window.difference = sum_multi_array(get_difference_between_two_images(window.last_image, data));
-	  	if(Math.abs(window.difference) > 250){
+	  	if(Math.abs(window.difference) > 600){
 	  		var d = new Date();
 			window.last_messup = d.getTime();
 	  		$('body').css('background-color','black')
+	  		$("#seconds_left_in_delay").text(3);
 	  	} else {
 	  		var d = new Date();
+	  		$("#seconds_left_in_delay").text( 3 - Math.floor( (d.getTime() - window.last_messup) / 1000 ));
 			if((d.getTime() - window.last_messup) > 3000){
 				$('body').css('background-color','white')
 			}
