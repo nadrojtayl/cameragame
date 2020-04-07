@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Display Webcam Stream</title>
+ 
+<style>
+#container {
+	margin: 0px auto;
+	width: 500px;
+	height: 375px;
+}
+#videoElement {
+	width: 500px;
+	height: 375px;
+	background-color: #666;
+}
+</style>
+<script
+  src="https://code.jquery.com/jquery-3.4.1.js"
+  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+  crossorigin="anonymous"></script>
+
+</head>
+ 
+<body>
+<div id="container">
+	<video hidden autoplay="true" id="videoElement">
+	
+	</video>
+	<canvas hidden id="canvas" onclick= canvasOnclick()></canvas>
+</div>
+<h1 style = "color:white">YOU MESSED UP. </h1>
+<h1>CODE: 9ASNSA9</h1>
+
+<script>
+var video = document.querySelector("#videoElement");
+var canvas = document.getElementById('canvas');
+var ctx = canvas.getContext('2d');
+if (navigator.mediaDevices.getUserMedia) {       
+    navigator.mediaDevices.getUserMedia({video: true})
+  .then(function(stream) {
+    video.srcObject = stream;
+  })
+  .catch(function(err0r) {
+    console.log("Something went wrong!");
+  });
+}
+
+function getColorIndicesForCoord(x, y, width) {
+  var red = y * (width * 4) + x * 4;
+  return [red, red + 1, red + 2, red + 3];
+}
+
+
+function get_pixel(x,y,width, data){
+	return getColorIndicesForCoord(x,y,width).map(function(indice){
+		return data[indice]
+	})
+}
+
+function get_representative_subset_pixel_data(data, width, height, indices){
+	if(indices === undefined){
+		var indices = [];
+		for (var i = 0; i < width; i += (width/10) ){
+			for (var j = 0; j < height; j += (height/10)){
+				indices.push([i,j])
+			}
+		}
+	}
+
+	var new_pixel_data = [];
+	indices.forEach(function(coord,index){
+		var pixel_data = get_pixel(coord[0],coord[1],width,data)
+		new_pixel_data.push(pixel_data)
+	})
+
+	return new_pixel_data
+
+}
+
+function get_difference_between_two_images(image1,image2){
+	var data1 = get_representative_subset_pixel_data(image1.data,image1.width,image1.height)
+	var data2 = get_representative_subset_pixel_data(image2.data,image2.width,image2.height)
+	window.data1 = data1;
+	window.data2 = data2;
+	
+	return data2.map(function(rgb,ind1){
+		return rgb.map(function(color,ind2){return color - data1[ind1][ind2]})
+	})
+
+}
+
+var myVar = setInterval(intervalTimer, 200);
+
+function sum_multi_array(multiarray){
+	var sum = 0;
+	multiarray.forEach(function(innerarr){
+		innerarr.forEach(function(num){
+			sum += num;
+		})
+	})
+	return sum
+}
+
+function intervalTimer() {
+  ctx.clearRect(0,0,400,400);
+  ctx.drawImage(video,0,0,200,200);
+  var data = ctx.getImageData(0, 0, 200, 200)
+
+  if(window.stop === false){
+	  if(window.last_image === undefined){
+	  	window.last_image = data;
+	  } else {
+	  	window.difference = sum_multi_array(get_difference_between_two_images(window.last_image, data));
+	  	if(Math.abs(window.difference) > 250){
+	  		var d = new Date();
+			window.last_messup = d.getTime();
+	  		$('body').css('background-color','black')
+	  	} else {
+	  		var d = new Date();
+			if((d.getTime() - window.last_messup) > 3000){
+				$('body').css('background-color','white')
+			}
+	  	}
+	  	window.last_image = data;
+	  }
+  }
+
+}
+
+window.last_image;
+window.stop = false
+window.last_messup = -Infinity;
+
+
+</script>
+</body>
+</html>
