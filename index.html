@@ -113,7 +113,8 @@ function intervalTimer() {
 	  	window.last_image = data;
 	  } else {
 	  	window.difference = sum_multi_array(get_difference_between_two_images(window.last_image, data));
-	  	if(Math.abs(window.difference) > 600){
+	  	console.log(window.difference)
+	  	if(Math.abs(window.difference) > 3000){
 	  		var d = new Date();
 			window.last_messup = d.getTime();
 	  		$('body').css('background-color','black')
